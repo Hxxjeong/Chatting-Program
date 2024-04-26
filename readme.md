@@ -11,10 +11,6 @@
 
    - 닉네임 중복/공백 불가 처리
 
-     ![image-20240426163130937](C:\Users\HJ\AppData\Roaming\Typora\typora-user-images\image-20240426163130937.png)
-
-     ![image-20240426163035724](C:\Users\HJ\AppData\Roaming\Typora\typora-user-images\image-20240426163035724.png)
-
    - 입장 시 안내 메시지 출력
 
 
@@ -25,8 +21,6 @@
 
      방이 없을 경우 생성하라는 메시지 전송
 
-     ![image-20240426163211768](C:\Users\HJ\AppData\Roaming\Typora\typora-user-images\image-20240426163211768.png)
-
 
 
 2. 방 생성
@@ -36,8 +30,6 @@
    - "/join [방 번호]" 입력 시 존재하는 방으로 입장
 
      방 번호가 존재하지 않거나 올바르지 않을 경우 메시지 전송
-
-     ![image-20240426163713295](C:\Users\HJ\AppData\Roaming\Typora\typora-user-images\image-20240426163713295.png)
 
    - 방에 입장 시 멤버들에게 입장 메시지 전송
 
@@ -50,8 +42,6 @@
    - 방에 있는 사람이 "/exit" 입력 시 로비로 나옴
 
      로비에서 "/exit" 입력 시 명령어가 적용되지 않음
-
-     ![image-20240426163934426](C:\Users\HJ\AppData\Roaming\Typora\typora-user-images\image-20240426163934426.png)
 
    - 방에서 퇴장 시 멤버들에게 퇴장 메시지 전송
 
