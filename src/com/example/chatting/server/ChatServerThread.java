@@ -51,7 +51,7 @@ class ChatServerThread extends Thread {
             // 접속 시 클라이언트의 정보 출력
             System.out.println("접속 멤버: " + id + ", Client Port: " + socket.getInetAddress());
 
-            pw.println("방 목록 보기 : /list\n접속 유저 보기 : /users\n귓속말 : @[id] [메시지]\n방 생성 : /create\n방 입장 : /join [방번호]\n방 나가기 : /exit\n접속종료 : /bye\n");
+            printGuide();
 
             // 동시에 입장하는 경우 고려
             synchronized (clients) {
@@ -167,6 +167,17 @@ class ChatServerThread extends Thread {
         }
     }
 
+    // 로비 메시지
+    public void printGuide() {
+        pw.println("방 목록 보기 : /list\n" +
+                "접속 유저 보기 : /users\n" +
+                "귓속말 : @[id] [메시지]\n" +
+                "방 생성 : /create\n" +
+                "방 입장 : /join [방번호]\n" +
+                "방 나가기 : /exit\n" +
+                "접속종료 : /bye\n");
+    }
+
     // 방의 리스트 보기
     public void seeRooms() {
         synchronized (userRooms) {
@@ -229,6 +240,8 @@ class ChatServerThread extends Thread {
                 sendMessageToRoom(currentRoom, id + "님이 퇴장했습니다.");
             }
         }
+        // 로비로 돌아오면 가이드 메시지 출력
+        printGuide();
     }
 
     // 해당 방을 사용하는 사람에게 입장/퇴장 메시지 전송
