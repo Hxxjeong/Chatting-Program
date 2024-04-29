@@ -264,11 +264,12 @@ class ChatServerThread extends Thread {
     public void seeCurrentUsers() {
         int currentRoomNum = userRooms.get(this.id);
 
-        pw.println("현재 방에 접속한 유저 목록: ");
+        pw.print("현재 방에 접속한 유저 목록: ");
         userRooms.entrySet().stream()
                 .filter(u -> u.getValue().equals(currentRoomNum))
                 .map(Entry::getKey)
-                .forEach(user -> pw.println(user + " "));
+                .forEach(user -> pw.print(user + " "));
+        pw.println();
     }
 
     // 메시지 보내기
