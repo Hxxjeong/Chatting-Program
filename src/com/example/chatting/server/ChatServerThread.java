@@ -75,18 +75,18 @@ class ChatServerThread extends Thread {
                     break;
                 }
 
+                boolean isSameClient = userRooms.get(this.id).equals(0);
+
                 // 방 목록 보기
-                if("/list".equalsIgnoreCase(msg)) {
+                if("/list".equalsIgnoreCase(msg))
                     seeRooms();
-                }
                 // @id 메시지 형식 귓속말
                 // 로비에서도 귓속말 가능
                 else if(msg.indexOf("@") == 0)
                     toSomeone(msg);
                 // 사용자 목록 확인
-                else if ("/users".equalsIgnoreCase(msg)) {
+                else if ("/users".equalsIgnoreCase(msg))
                     checkMembers();
-                }
                 // 방 생성
                 else if("/create".equalsIgnoreCase(msg)) {
                     synchronized (userRooms) {
@@ -121,23 +121,20 @@ class ChatServerThread extends Thread {
                     }
                 }
                 // 사용자의 방 번호가 0이면 채팅 불가
-                else if(userRooms.get(this.id).equals(0)) {
+                else if(isSameClient)
                     pw.println("방에 먼저 입장해주세요. /create: 방 생성, /join [방번호]: 방 입장");
-                }
                 // 현재 방에 있는 사용자 보기
-                else if(!userRooms.get(this.id).equals(0) && "/roomusers".equalsIgnoreCase(msg)) {
+                else if(!isSameClient && "/roomusers".equalsIgnoreCase(msg))
                     seeCurrentUsers();
-                }
                 // 방 나가기
-                else if(!userRooms.get(this.id).equals(0) && "/exit".equalsIgnoreCase(msg)) {
+                else if(!isSameClient && "/exit".equalsIgnoreCase(msg)) {
                     synchronized (userRooms) {
                         exitRoom();
                     }
                 }
                 // 방에 참가된 경우 메시지 주고 받기 가능
-                else /*if(!userRooms.get(this.id).equals(0))*/ {
+                else /*if(!userRooms.get(this.id).equals(0))*/
                     sendMessage(msg);
-                }
             }
         } catch (IOException e) {
             System.out.println(e);
