@@ -112,7 +112,7 @@ class ChatServerThread extends Thread {
 
                             // 방이 존재할 떄만 들어가기
                             if (userRooms.values().stream().noneMatch(r -> r.equals(roomNum)) || roomNum == 0)
-                                pw.println("방 번호를 올바르게 입력해주세요.");
+                                pw.println("존재하지 않는 방 번호입니다.");
                             else {
                                 userRooms.put(this.id, roomNum);
                                 enterRoom(roomNum);
@@ -174,14 +174,16 @@ class ChatServerThread extends Thread {
 
     // 로비 메시지
     public void printGuide() {
-        pw.println("방 목록 보기 : /list\n" +
+        pw.println("==============\n" +
+                "방 목록 보기 : /list\n" +
                 "접속 유저 보기 : /users\n" +
                 "귓속말 : @[id] [메시지]\n" +
                 "방 생성 : /create\n" +
                 "방 입장 : /join [방번호]\n" +
                 "방 나가기 : /exit\n" +
                 "전체 메시지 : /all [메시지]\n" +
-                "접속종료 : /bye\n");
+                "접속종료 : /bye\n" +
+                "==============\n");
     }
 
     // 방의 리스트 보기
@@ -216,9 +218,9 @@ class ChatServerThread extends Thread {
         synchronized (clients) {
             Iterator<PrintWriter> iterator = clients.values().iterator();
             while(iterator.hasNext()) {
-                PrintWriter pw = iterator.next();
+                PrintWriter out = iterator.next();
                 try {
-                    pw.println("전체 메시지>> " + id + ": " + msg);
+                    out.println("전체 메시지>> " + id + ": " + msg);
                 }
                 catch (Exception e) {
                     iterator.remove();  // Broadcast 할 수 없는 사용자 제거
