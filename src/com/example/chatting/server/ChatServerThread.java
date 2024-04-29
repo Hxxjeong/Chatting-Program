@@ -51,7 +51,7 @@ class ChatServerThread extends Thread {
             // 접속 시 클라이언트의 정보 출력
             System.out.println("접속 멤버: " + id + ", Client Port: " + socket.getInetAddress());
 
-            pw.println("방 목록 보기 : /list\n귓속말 : @[id] [메시지]\n방 생성 : /create\n방 입장 : /join [방번호]\n방 나가기 : /exit\n접속종료 : /bye\n");
+            pw.println("방 목록 보기 : /list\n접속 유저 보기 : /users\n귓속말 : @[id] [메시지]\n방 생성 : /create\n방 입장 : /join [방번호]\n방 나가기 : /exit\n접속종료 : /bye\n");
 
             // 동시에 입장하는 경우 고려
             synchronized (clients) {
@@ -115,6 +115,10 @@ class ChatServerThread extends Thread {
                 // 사용자의 방 번호가 0이면 채팅 불가
                 else if(userRooms.get(this.id).equals(0)) {
                     pw.println("방에 먼저 입장해주세요. /create: 방 생성, /join [방번호]: 방 입장");
+                }
+                // 현재 방에 있는 사용자 보기
+                else if(!userRooms.get(this.id).equals(0) && "/roomusers".equalsIgnoreCase(msg)) {
+                    seeCurrentUsers();
                 }
                 // 방 나가기
                 else if(!userRooms.get(this.id).equals(0) && "/exit".equalsIgnoreCase(msg)) {
@@ -188,11 +192,13 @@ class ChatServerThread extends Thread {
 
         // 방 멤버들에게 입장 알림
         sendMessageToRoom(currentRoom, id + "님이 입장하였습니다.");
+        pw.println("현재 방에 있는 유저 목록 보기: /roomusers");
     }
 
     // join 해서 들어온 경우
     public void enterRoom(int room) {
         sendMessageToRoom(room, id + "님이 입장하였습니다.");
+        pw.println("현재 방에 있는 유저 목록 보기: /roomusers");
     }
 
     // 방 나가기
@@ -231,6 +237,17 @@ class ChatServerThread extends Thread {
                 }
             });
         }
+    }
+
+    // 현재 방에 있는 유저 보기
+    public void seeCurrentUsers() {
+        int currentRoomNum = userRooms.get(this.id);
+
+        pw.println("현재 방에 접속한 유저 목록: ");
+        userRooms.entrySet().stream()
+                .filter(u -> u.getValue().equals(currentRoomNum))
+                .map(Entry::getKey)
+                .forEach(user -> pw.println(user + " "));
     }
 
     // 메시지 보내기
