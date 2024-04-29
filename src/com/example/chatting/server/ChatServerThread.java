@@ -51,6 +51,7 @@ class ChatServerThread extends Thread {
             // 접속 시 클라이언트의 정보 출력
             System.out.println("접속 멤버: " + id + ", Client Port: " + socket.getInetAddress());
 
+            // 접속 후 가이드 메시지 출력
             printGuide();
 
             // 동시에 입장하는 경우 고려
@@ -87,6 +88,11 @@ class ChatServerThread extends Thread {
                 // 사용자 목록 확인
                 else if ("/users".equalsIgnoreCase(msg))
                     checkMembers();
+                else if (msg.startsWith("/all ")) {
+                    String message = msg.substring(5);  // 명령어 형태가 올바르지 않으면 방에 참여하지 않고 메시지를 보내게 됨
+
+                    sendToAll(message);
+                }
                 // 방 생성
                 else if("/create".equalsIgnoreCase(msg)) {
                     synchronized (userRooms) {
@@ -174,6 +180,7 @@ class ChatServerThread extends Thread {
                 "방 생성 : /create\n" +
                 "방 입장 : /join [방번호]\n" +
                 "방 나가기 : /exit\n" +
+                "전체 메시지 : /all [메시지]\n" +
                 "접속종료 : /bye\n");
     }
 
@@ -197,10 +204,28 @@ class ChatServerThread extends Thread {
         }
     }
 
+    // 모든 사용자 보기
     public void checkMembers() {
         pw.print("접속 중인 사용자 목록: ");
         Set<String> users = new HashSet<>(clients.keySet());
         pw.println(users);
+    }
+
+    // 전체 사용자에게 메시지 보내기
+    public void sendToAll(String msg) {
+        synchronized (clients) {
+            Iterator<PrintWriter> iterator = clients.values().iterator();
+            while(iterator.hasNext()) {
+                PrintWriter pw = iterator.next();
+                try {
+                    pw.println("전체 메시지>> " + id + ": " + msg);
+                }
+                catch (Exception e) {
+                    iterator.remove();  // Broadcast 할 수 없는 사용자 제거
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     // 방 참가
@@ -315,7 +340,7 @@ class ChatServerThread extends Thread {
         try {
             int spaceIndex = msg.indexOf(" ");
 
-            String targetId = msg.substring(1, spaceIndex); // @이후부터 공백 전까지
+            String targetId = msg.substring(1, spaceIndex); // @ 이후부터 공백 전까지
             String message = msg.substring(spaceIndex+1);   // 공백 이후
 
             // 수신자에게 메시지 전송
