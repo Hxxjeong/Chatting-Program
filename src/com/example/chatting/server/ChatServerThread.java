@@ -211,13 +211,11 @@ class ChatServerThread extends Thread {
 
         // 방 멤버들에게 입장 알림
         sendMessageToRoom(currentRoom, id + "님이 입장하였습니다.");
-        pw.println("현재 방에 있는 유저 목록 보기: /roomusers");
     }
 
     // join 해서 들어온 경우
     public void enterRoom(int room) {
         sendMessageToRoom(room, id + "님이 입장하였습니다.");
-        pw.println("현재 방에 있는 유저 목록 보기: /roomusers");
     }
 
     // 방 나가기
@@ -257,6 +255,7 @@ class ChatServerThread extends Thread {
                     }
                 }
             });
+            pw.println("현재 방에 있는 유저 목록 보기: /roomusers");
         }
     }
 
