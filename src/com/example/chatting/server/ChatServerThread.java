@@ -2,9 +2,7 @@ package com.example.chatting.server;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -18,6 +16,7 @@ class ChatServerThread extends Thread {
 
     private BufferedReader br;
     private PrintWriter pw;
+    private Map<Integer, List<String>> roomLogs;
 
     private static AtomicInteger nextRoomNumber = new AtomicInteger(1);
 
@@ -26,10 +25,11 @@ class ChatServerThread extends Thread {
         return nextRoomNumber.getAndIncrement();
     }
 
-    public ChatServerThread(Socket socket, Map<String, PrintWriter> clients, Map<String, Integer> userRooms) {
+    public ChatServerThread(Socket socket, Map<String, PrintWriter> clients, Map<String, Integer> userRooms, Map<Integer, List<String>> roomLogs) {
         this.socket = socket;
         this.clients = clients;
         this.userRooms = userRooms;
+        this.roomLogs = roomLogs;
 
         try {
             pw = new PrintWriter(socket.getOutputStream(), true);
@@ -125,7 +125,9 @@ class ChatServerThread extends Thread {
                     pw.println("방에 먼저 입장해주세요. /create: 방 생성, /join [방번호]: 방 입장");
                 // 현재 방에 있는 사용자 보기
                 else if(!isSameClient && "/roomusers".equalsIgnoreCase(msg))
-                    seeCurrentUsers();
+                    seeCurrentRoomUsers();
+                else if(!isSameClient && "/save".equalsIgnoreCase(msg))
+                    saveChat();
                 // 방 나가기
                 else if(!isSameClient && "/exit".equalsIgnoreCase(msg)) {
                     synchronized (userRooms) {
@@ -215,6 +217,24 @@ class ChatServerThread extends Thread {
         sendMessageToRoom(room, id + "님이 입장하였습니다.");
     }
 
+    public void saveChat() {
+        int roomNum = userRooms.get(this.id);
+        String filename = this.id + "saved_" + roomNum + "_chatlog.txt";
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+            List<String> messages = roomLogs.get(roomNum);
+            if(messages != null) {
+                for (String message : messages) {
+                    writer.write(message);
+                    writer.newLine();
+                }
+            }
+            pw.println("채팅 내용이 저장되었습니다. 프로그램 종료 시 파일이 생성됩니다.");
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+    }
+
     // 방 나가기
     public void exitRoom() {
         int currentRoom = userRooms.get(this.id);
@@ -253,11 +273,12 @@ class ChatServerThread extends Thread {
                 }
             });
             pw.println("현재 방에 있는 유저 목록 보기: /roomusers");
+            pw.println("채팅 내용 저장: /save");
         }
     }
 
     // 현재 방에 있는 유저 보기
-    public void seeCurrentUsers() {
+    public void seeCurrentRoomUsers() {
         int currentRoomNum = userRooms.get(this.id);
 
         pw.print("현재 방에 접속한 유저 목록: ");
@@ -284,6 +305,8 @@ class ChatServerThread extends Thread {
                     }
                 }
             });
+            // 채팅 로그 저장
+            roomLogs.computeIfAbsent(currentRoom, k -> new ArrayList<>()).add(id + ": " + msg);
         }
     }
     
