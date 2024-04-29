@@ -49,7 +49,7 @@ class ChatServerThread extends Thread {
             // 접속 시 클라이언트의 정보 출력
             System.out.println("접속 멤버: " + id + ", Client Port: " + socket.getInetAddress());
 
-            pw.println("방 목록 보기 : /list\n방 생성 : /create\n방 입장 : /join [방번호]\n방 나가기 : /exit\n접속종료 : /bye");
+            pw.println("방 목록 보기 : /list\n귓속말 : @[id] [메시지]\n방 생성 : /create\n방 입장 : /join [방번호]\n방 나가기 : /exit\n접속종료 : /bye\n");
 
             // 동시에 입장하는 경우 고려
             synchronized (clients) {
@@ -77,6 +77,10 @@ class ChatServerThread extends Thread {
                 if("/list".equalsIgnoreCase(msg)) {
                     seeRooms();
                 }
+                // @id 메시지 형식 귓속말
+                // 로비에서도 귓속말 가능
+                else if(msg.indexOf("@") == 0)
+                    toSomeone(msg);
                 // 방 생성
                 else if("/create".equalsIgnoreCase(msg)) {
                     synchronized (userRooms) {
@@ -233,6 +237,30 @@ class ChatServerThread extends Thread {
                     }
                 }
             });
+        }
+    }
+    
+    // 귓속말 기능
+    public void toSomeone(String msg) {
+        try {
+            int spaceIndex = msg.indexOf(" ");
+
+            String targetId = msg.substring(1, spaceIndex); // @이후부터 공백 전까지
+            String message = msg.substring(spaceIndex+1);   // 공백 이후
+
+            // 수신자에게 메시지 전송
+            PrintWriter out = clients.get(targetId);
+            if (targetId.equals(this.id)) {
+                pw.println("본인에게는 메시지를 보낼 수 없습니다.");
+            } else if (out != null) {
+                pw.println("메시지를 전송하였습니다.");
+                out.println(id + "님의 귓속말: " + message);
+            } else {
+                pw.println(targetId + " 님을 찾을 수 없습니다.");
+            }
+        }
+        catch (Exception e) {
+            System.out.println(e);
         }
     }
 }
