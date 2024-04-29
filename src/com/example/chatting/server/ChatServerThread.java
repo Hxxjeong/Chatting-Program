@@ -99,16 +99,24 @@ class ChatServerThread extends Thread {
                 // 방 참가
                 else if(msg.startsWith("/join")) {
                     synchronized (userRooms) {
-                        // 공백으로 분리
-                        int firstSpaceIndex = msg.indexOf(" "); // 첫번째 공백의 인덱스
-                        int roomNum = Integer.parseInt(msg.substring(firstSpaceIndex+1));
+                        try {
+                            // 공백으로 분리
+                            int firstSpaceIndex = msg.indexOf(" "); // 첫번째 공백의 인덱스
+                            int roomNum = Integer.parseInt(msg.substring(firstSpaceIndex + 1));
 
-                        // 방이 존재할 떄만 들어가기
-                        if(userRooms.values().stream().noneMatch(r -> r.equals(roomNum)) || roomNum == 0)
-                            pw.println("방 번호를 올바르게 입력해주세요.");
-                        else {
-                            userRooms.put(this.id, roomNum);
-                            enterRoom(roomNum);
+                            // 방이 존재할 떄만 들어가기
+                            if (userRooms.values().stream().noneMatch(r -> r.equals(roomNum)) || roomNum == 0)
+                                pw.println("방 번호를 올바르게 입력해주세요.");
+                            else {
+                                userRooms.put(this.id, roomNum);
+                                enterRoom(roomNum);
+                            }
+                        }
+                        catch (NumberFormatException e) {
+                            pw.println("방은 숫자로 구성되어 있습니다. 올바르게 입력해주세요.");
+                        }
+                        catch (Exception e) {
+                            System.out.println(e);
                         }
                     }
                 }
