@@ -2,7 +2,9 @@ package com.example.chatting.server;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -81,6 +83,10 @@ class ChatServerThread extends Thread {
                 // 로비에서도 귓속말 가능
                 else if(msg.indexOf("@") == 0)
                     toSomeone(msg);
+                // 사용자 목록 확인
+                else if ("/users".equalsIgnoreCase(msg)) {
+                    checkMembers();
+                }
                 // 방 생성
                 else if("/create".equalsIgnoreCase(msg)) {
                     synchronized (userRooms) {
@@ -167,6 +173,12 @@ class ChatServerThread extends Thread {
                 pw.println();
             }
         }
+    }
+
+    public void checkMembers() {
+        pw.print("접속 중인 사용자 목록: ");
+        Set<String> users = new HashSet<>(clients.keySet());
+        pw.println(users);
     }
 
     // 방 참가
